@@ -1,0 +1,30 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Papan Peringkat - Quiz App</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="assets/css/style.css">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+</head>
+<body class="bg-gray-100 font-['Inter']">
+    <main class="max-w-4xl mx-auto py-8 px-4 sm:px-6 lg:px-8">
+        <div class="text-center mb-8">
+            <h1 id="quiz-title-leaderboard" class="text-4xl font-bold text-gray-800">Papan Peringkat</h1>
+            <p class="text-lg text-gray-600 mt-2">Hasil akhir kuis</p>
+        </div>
+
+        <div id="leaderboard-list" class="space-y-4">
+            <p class="text-center text-gray-500">Memuat peringkat...</p>
+        </div>
+        
+        <div class="text-center mt-12">
+             <a href="dashboard-student.html" class="px-8 py-3 text-lg font-bold text-white bg-indigo-600 rounded-lg hover:bg-indigo-700">
+                Kembali ke Dashboard
+            </a>
+        </div>
+    </main>
+    <script type="module" src="assets/js/app.js"></script>
+</body>
+</html>

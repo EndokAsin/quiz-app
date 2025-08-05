@@ -5,7 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Dashboard Murid - Quiz App</title>
     <script src="https://cdn.tailwindcss.com"></script>
-    <link rel="stylesheet" href="/assets/css/style.css">
+    <link rel="stylesheet" href="assets/css/style.css">
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
 </head>
 <body class="bg-gray-50 font-['Inter']">
@@ -15,7 +15,7 @@
             <div class="flex justify-between items-center h-16">
                 <div class="flex-shrink-0 font-bold text-xl text-indigo-600">QuizApp</div>
                 <div class="flex items-center space-x-4">
-                    <a href="/profile.html" id="user-name-display" class="text-gray-700 hover:text-indigo-600"></a>
+                    <a href="profile.html" id="user-name-display" class="text-gray-700 hover:text-indigo-600">Memuat...</a>
                     <button id="logout-button" class="px-4 py-2 text-sm font-medium text-white bg-red-500 rounded-lg hover:bg-red-600">Keluar</button>
                 </div>
             </div>
@@ -41,12 +41,11 @@
         <div>
             <h2 class="text-2xl font-semibold text-gray-700 mb-4">Riwayat Kuis Saya</h2>
             <div id="results-list" class="space-y-4">
-                <!-- Quiz results will be injected here -->
                 <p id="loading-results">Memuat riwayat kuis...</p>
             </div>
         </div>
     </main>
 
-    <script type="module" src="/assets/js/app.js"></script>
+    <script type="module" src="assets/js/app.js"></script>
 </body>
 </html>
