@@ -1,4 +1,4 @@
-// assets/js/app.js (Revisi Penuh)
+// assets/js/app.js (Final)
 
 import { supabase } from './supabase.js';
 
@@ -146,9 +146,7 @@ const loadProfilePage = async () => {
             }
 
             if (file) {
-                // REVISI: Menggunakan nama bucket 'profile' sesuai permintaan.
-                // Pastikan nama ini SAMA PERSIS dengan nama bucket di Supabase Anda.
-                const bucketName = 'profile';
+                const bucketName = 'profile_pictures'; // Pastikan nama ini benar
                 const filePath = `${user.id}/${Date.now()}-${file.name}`;
                 const { error: uploadError } = await supabase.storage.from(bucketName).upload(filePath, file);
                 if (uploadError) throw uploadError;
@@ -411,6 +409,7 @@ const loadQuizForStudent = async (quizId) => {
         const answerOptionsDiv = document.getElementById('answer-options');
         answerOptionsDiv.innerHTML = '';
         if (question.question_type === 'multiple_choice') {
+            answerOptionsDiv.classList.add('grid', 'grid-cols-1', 'md:grid-cols-2', 'gap-4');
             const colors = ['bg-red-600', 'bg-blue-600', 'bg-yellow-500', 'bg-green-600'];
             const labels = ['A', 'B', 'C', 'D'];
             Object.entries(question.options).forEach(([key, value], index) => {
@@ -425,9 +424,31 @@ const loadQuizForStudent = async (quizId) => {
                 e.currentTarget.classList.add('ring-4', 'ring-white');
                 quizState.selectedAnswer = e.currentTarget.dataset.answer;
             }));
+        } else if (question.question_type === 'essay') {
+            answerOptionsDiv.classList.remove('grid', 'grid-cols-1', 'md:grid-cols-2', 'gap-4');
+            answerOptionsDiv.innerHTML = `
+                <div class="space-y-4">
+                    <textarea id="essay-answer-text" rows="6" class="w-full p-3 rounded-lg text-gray-900 text-lg" placeholder="Ketik jawaban Anda di sini..."></textarea>
+                    <div>
+                        <label for="essay-image-upload" class="cursor-pointer text-indigo-300 hover:text-indigo-100 underline">
+                            (Opsional) Unggah gambar pendukung
+                        </label>
+                        <input type="file" id="essay-image-upload" class="hidden" accept="image/*">
+                        <p id="file-name-display" class="text-sm text-gray-400 mt-1"></p>
+                    </div>
+                </div>
+            `;
+            document.getElementById('essay-image-upload').addEventListener('change', (e) => {
+                const fileNameDisplay = document.getElementById('file-name-display');
+                if (e.target.files.length > 0) {
+                    fileNameDisplay.textContent = `File dipilih: ${e.target.files[0].name}`;
+                } else {
+                    fileNameDisplay.textContent = '';
+                }
+            });
         }
         
-        startQuestionTimer(question.time_limit_seconds || 30);
+        startQuestionTimer(question.time_limit_seconds || 120);
     };
 
     const startQuestionTimer = (seconds) => {
@@ -445,7 +466,7 @@ const loadQuizForStudent = async (quizId) => {
         }, 1000);
     };
     
-    const showFeedback = (isCorrect) => {
+    const showFeedback = (isCorrect, isEssay = false) => {
         const overlay = document.getElementById('feedback-overlay');
         const feedbackText = document.getElementById('feedback-text');
         const body = document.body;
@@ -453,7 +474,10 @@ const loadQuizForStudent = async (quizId) => {
         overlay.classList.remove('hidden');
         overlay.classList.add('flex');
         
-        if (isCorrect) {
+        if (isEssay) {
+            feedbackText.textContent = 'Jawaban Terkirim!';
+            body.classList.add('bg-blue-500');
+        } else if (isCorrect) {
             feedbackText.textContent = 'Benar!';
             body.classList.add('bg-green-500');
         } else {
@@ -464,7 +488,7 @@ const loadQuizForStudent = async (quizId) => {
         setTimeout(() => {
             overlay.classList.add('hidden');
             overlay.classList.remove('flex');
-            body.classList.remove('bg-green-500', 'bg-red-500');
+            body.classList.remove('bg-green-500', 'bg-red-500', 'bg-blue-500');
             quizState.currentQuestionIndex++;
             displayQuestion();
         }, 1500);
@@ -474,19 +498,41 @@ const loadQuizForStudent = async (quizId) => {
         clearInterval(quizState.timerId);
         document.getElementById('submit-answer-button').disabled = true;
         const question = quizState.questions[quizState.currentQuestionIndex];
-        const isCorrect = quizState.selectedAnswer === question.answer;
-        
-        if (isCorrect) {
-            quizState.score += 100;
-        }
-        
         const user = await getUser();
-        await supabase.from('answers').insert({
-            quiz_id: quizId, student_id: user.id, question_id: question.id,
-            answer_text: quizState.selectedAnswer, score: isCorrect ? 100 : 0,
-        });
         
-        showFeedback(isCorrect);
+        if (question.question_type === 'essay') {
+            const answerText = document.getElementById('essay-answer-text').value;
+            const imageFile = document.getElementById('essay-image-upload').files[0];
+            let imageUrl = null;
+
+            if (imageFile) {
+                const filePath = `${user.id}/${quizId}/${Date.now()}-${imageFile.name}`;
+                const { error: uploadError } = await supabase.storage.from('answers-images').upload(filePath, imageFile);
+                if (uploadError) {
+                    showError("Gagal mengunggah gambar. Jawaban teks tetap disimpan.");
+                } else {
+                    const { data } = supabase.storage.from('answers-images').getPublicUrl(filePath);
+                    imageUrl = data.publicUrl;
+                }
+            }
+
+            await supabase.from('answers').insert({
+                quiz_id: quizId, student_id: user.id, question_id: question.id,
+                answer_text: answerText, answer_image_url: imageUrl, score: null,
+            });
+            showFeedback(false, true);
+
+        } else {
+            const isCorrect = quizState.selectedAnswer === question.answer;
+            if (isCorrect) {
+                quizState.score += 100;
+            }
+            await supabase.from('answers').insert({
+                quiz_id: quizId, student_id: user.id, question_id: question.id,
+                answer_text: quizState.selectedAnswer, score: isCorrect ? 100 : 0,
+            });
+            showFeedback(isCorrect);
+        }
     };
     
     const finishQuiz = async () => {
@@ -562,38 +608,33 @@ document.addEventListener('DOMContentLoaded', async () => {
     const path = window.location.pathname.split('/').pop() || 'index.html';
     const params = new URLSearchParams(window.location.search);
 
-    // Fungsi ini sekarang hanya menangani autentikasi dan pengaturan UI umum
     const initializePage = async () => {
         const user = await getUser();
         if (!user) {
-            // Jika pengguna tidak login, batasi akses hanya ke halaman publik
             const publicPages = ['index.html', 'register.html', 'verify-otp.html', 'forgot-password.html'];
             if (!publicPages.includes(path)) {
                 window.location.href = 'index.html';
             }
-            return null; // Kembalikan null jika tidak ada pengguna
+            return null;
         }
 
         const profile = await getUserProfile(user.id);
         if (!profile) {
-            // Jika ada sesi tapi profil tidak ditemukan (misal, error sinkronisasi), logout
             await handleLogout();
             return null;
         }
         
-        // Atur elemen UI umum yang ada di banyak halaman
         const userNameDisplay = document.getElementById('user-name-display');
         if (userNameDisplay) userNameDisplay.textContent = profile.full_name;
 
         const logoutButton = document.getElementById('logout-button');
         if (logoutButton) logoutButton.addEventListener('click', handleLogout);
 
-        return profile; // Kembalikan profil untuk digunakan oleh logika spesifik halaman
+        return profile;
     };
 
     const profile = await initializePage();
 
-    // Jalankan logika spesifik halaman hanya jika ada profil yang valid (pengguna sudah login)
     if (profile) {
         switch (path) {
             case 'dashboard-teacher.html':
@@ -631,7 +672,6 @@ document.addEventListener('DOMContentLoaded', async () => {
                 loadQuizForStudent(quizIdPlay);
                 break;
             case 'leaderboard.html':
-                // REVISI: Atur tautan kembali ke dashboard berdasarkan peran pengguna
                 const backToDashboardLink = document.getElementById('back-to-dashboard-link');
                 if (backToDashboardLink) {
                     backToDashboardLink.href = profile.role === 'teacher' ? 'dashboard-teacher.html' : 'dashboard-student.html';
@@ -641,7 +681,6 @@ document.addEventListener('DOMContentLoaded', async () => {
                 break;
         }
     } else {
-        // Logika untuk halaman publik (jika pengguna belum login)
         switch (path) {
             case 'index.html':
                 document.getElementById('login-form').addEventListener('submit', (e) => {
