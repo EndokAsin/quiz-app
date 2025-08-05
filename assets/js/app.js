@@ -34,6 +34,17 @@ const getUserProfile = async (userId) => {
     return data;
 }
 
+/**
+ * Fungsi untuk mengacak urutan elemen dalam sebuah array (Algoritma Fisher-Yates).
+ * @param {Array} array Array yang akan diacak.
+ */
+const shuffleArray = (array) => {
+    for (let i = array.length - 1; i > 0; i--) {
+        const j = Math.floor(Math.random() * (i + 1));
+        [array[i], array[j]] = [array[j], array[i]];
+    }
+}
+
 
 // ===================================================================================
 // LOGIKA AUTENTIKASI
@@ -135,11 +146,12 @@ const loadProfilePage = async () => {
             }
 
             if (file) {
-                const filePath = `profile_pictures/${user.id}/${Date.now()}-${file.name}`;
-                const { error: uploadError } = await supabase.storage.from('profile_pictures').upload(filePath, file);
+                // REVISI: Menggunakan nama bucket 'profile-picture' sesuai permintaan.
+                const filePath = `profile-picture/${user.id}/${Date.now()}-${file.name}`;
+                const { error: uploadError } = await supabase.storage.from('profile-picture').upload(filePath, file);
                 if (uploadError) throw uploadError;
 
-                const { data: { publicUrl } } = supabase.storage.from('profile_pictures').getPublicUrl(filePath);
+                const { data: { publicUrl } } = supabase.storage.from('profile-picture').getPublicUrl(filePath);
                 const { error: urlError } = await supabase.from('users').update({ profile_picture_url: publicUrl }).eq('id', user.id);
                 if (urlError) throw urlError;
             }
@@ -173,7 +185,6 @@ const handleQuizStatusChange = async (quizId, status) => {
         alert(`Gagal mengubah status kuis: ${error.message}`);
     } else {
         alert(`Kuis berhasil diubah ke status: ${status}!`);
-        // Muat ulang daftar kuis untuk memperbarui tampilan tombol
         if (window.location.pathname.includes('dashboard-teacher.html')) {
             loadTeacherQuizzes();
         }
@@ -294,6 +305,22 @@ const handleJoinQuiz = async (code) => {
         const { data: quiz, error } = await supabase.from('quizzes').select('id, status').eq('code', code.toUpperCase()).single();
         if (error || !quiz) throw new Error("Kuis dengan kode tersebut tidak ditemukan.");
         if (quiz.status === 'finished') throw new Error("Kuis ini sudah selesai.");
+
+        // REVISI: Cek apakah murid sudah pernah mengerjakan kuis ini
+        const user = await getUser();
+        const { data: existingAnswers, error: checkError } = await supabase
+            .from('answers')
+            .select('id')
+            .eq('quiz_id', quiz.id)
+            .eq('student_id', user.id)
+            .limit(1);
+
+        if (checkError) throw checkError;
+
+        if (existingAnswers && existingAnswers.length > 0) {
+            throw new Error("Anda sudah pernah mengerjakan kuis ini dan tidak dapat mengulanginya.");
+        }
+
         window.location.href = `quiz.html?id=${quiz.id}`;
     } catch (error) {
         showError(error.message, 'join-error');
@@ -309,12 +336,16 @@ const loadQuizForStudent = async (quizId) => {
         document.getElementById('waiting-screen').classList.add('hidden');
         document.getElementById('quiz-container').classList.remove('hidden');
 
-        const { data, error } = await supabase.from('questions').select('*').eq('quiz_id', quizId).order('created_at');
+        const { data, error } = await supabase.from('questions').select('*').eq('quiz_id', quizId);
         if (error || !data || data.length === 0) {
             document.body.innerHTML = '<h1 class="text-white text-center text-2xl p-8">Kuis ini belum memiliki pertanyaan. Harap hubungi dosen Anda.</h1>';
             return;
         }
+        
+        // REVISI: Acak urutan pertanyaan
+        shuffleArray(data);
         quizState.questions = data;
+        
         displayQuestion();
     };
 
@@ -389,7 +420,7 @@ const loadQuizForStudent = async (quizId) => {
             body.classList.remove('bg-green-500', 'bg-red-500');
             quizState.currentQuestionIndex++;
             displayQuestion();
-        }, 1500); // Tampilkan feedback selama 1.5 detik
+        }, 1500);
     };
 
     const submitAnswer = async () => {
@@ -481,13 +512,12 @@ const loadLeaderboard = async (quizId) => {
 // ROUTER HALAMAN
 // ===================================================================================
 document.addEventListener('DOMContentLoaded', () => {
-    const path = window.location.pathname.split('/').pop() || 'index.html'; // Default ke index.html jika path kosong
+    const path = window.location.pathname.split('/').pop() || 'index.html';
     const params = new URLSearchParams(window.location.search);
 
     const commonAuthElements = async () => {
         const user = await getUser();
         if (!user) {
-            // Jika tidak ada user dan bukan di halaman login/register, redirect
             if (path !== 'index.html' && path !== 'register.html' && path !== 'verify-otp.html' && path !== 'forgot-password.html') {
                 window.location.href = 'index.html';
             }
