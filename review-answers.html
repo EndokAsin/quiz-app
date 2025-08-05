@@ -1,0 +1,35 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Nilai Jawaban Esai - Quiz App</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="assets/css/style.css">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+</head>
+<body class="bg-gray-50 font-['Inter']">
+    <!-- Navbar -->
+    <nav class="bg-white shadow-sm">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex justify-between items-center h-16">
+                 <a href="dashboard-teacher.html" class="text-indigo-600 hover:text-indigo-800">&larr; Kembali ke Dashboard</a>
+                 <div id="user-name-display" class="text-gray-700"></div>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Main Content -->
+    <main class="max-w-4xl mx-auto py-8 px-4 sm:px-6 lg:px-8">
+        <h1 id="quiz-title-review" class="text-3xl font-bold text-gray-800 mb-6">Memuat Jawaban...</h1>
+
+        <!-- Daftar Jawaban Esai -->
+        <div id="answers-list-container" class="space-y-6">
+            <!-- Jawaban akan dimasukkan di sini oleh JavaScript -->
+            <p id="loading-answers">Memuat jawaban esai...</p>
+        </div>
+    </main>
+
+    <script type="module" src="assets/js/app.js"></script>
+</body>
+</html>
