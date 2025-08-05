@@ -203,20 +203,25 @@ const loadTeacherQuizzes = async () => {
     loadingP.style.display = 'none';
     quizListDiv.innerHTML = '';
     quizzes.forEach(quiz => {
-        const startButton = quiz.status === 'pending' ? `<button data-quiz-id="${quiz.id}" data-action="start" class="quiz-action-btn text-sm text-white bg-green-500 hover:bg-green-600 px-3 py-1 rounded-md">Mulai Kuis</button>` : '';
-        const finishButton = quiz.status === 'active' ? `<button data-quiz-id="${quiz.id}" data-action="finish" class="quiz-action-btn text-sm text-white bg-red-500 hover:bg-red-600 px-3 py-1 rounded-md">Selesai Kuis</button>` : '';
+        const startButton = quiz.status === 'pending' ? `<button data-quiz-id="${quiz.id}" data-action="start" class="quiz-action-btn text-sm text-white bg-green-500 hover:bg-green-600 px-3 py-1 rounded-md">Mulai</button>` : '';
+        const finishButton = quiz.status === 'active' ? `<button data-quiz-id="${quiz.id}" data-action="finish" class="quiz-action-btn text-sm text-white bg-red-500 hover:bg-red-600 px-3 py-1 rounded-md">Selesai</button>` : '';
         
         quizListDiv.innerHTML += `
-            <div class="quiz-card bg-white p-5 rounded-lg shadow-md border border-gray-200">
-                <h3 class="text-xl font-bold text-gray-800">${quiz.title}</h3>
-                <p class="text-gray-500 text-sm mt-1">Status: <span class="font-semibold">${quiz.status}</span></p>
-                <div class="mt-4 bg-gray-100 p-3 rounded-md text-center">
-                    <p class="text-sm text-gray-600">Kode Kuis</p>
-                    <p class="text-2xl font-bold tracking-widest text-indigo-600">${quiz.code}</p>
+            <div class="quiz-card bg-white p-5 rounded-lg shadow-md border border-gray-200 flex flex-col justify-between">
+                <div>
+                    <h3 class="text-xl font-bold text-gray-800 truncate">${quiz.title}</h3>
+                    <p class="text-gray-500 text-sm mt-1">Status: <span class="font-semibold">${quiz.status}</span></p>
+                    <div class="mt-4 bg-gray-100 p-3 rounded-md text-center">
+                        <p class="text-sm text-gray-600">Kode Kuis</p>
+                        <p class="text-2xl font-bold tracking-widest text-indigo-600">${quiz.code}</p>
+                    </div>
                 </div>
-                <div class="mt-4 flex justify-between items-center">
-                    <a href="edit-quiz.html?quiz_id=${quiz.id}" class="text-sm text-white bg-blue-500 hover:bg-blue-600 px-3 py-1 rounded-md">Edit Soal</a>
-                    <div class="flex gap-2">
+                <div class="mt-4 pt-4 border-t space-y-2">
+                    <div class="flex justify-between items-center gap-2">
+                        <a href="edit-quiz.html?quiz_id=${quiz.id}" class="flex-1 text-center text-sm text-white bg-blue-500 hover:bg-blue-600 px-3 py-2 rounded-md">Edit</a>
+                        <a href="leaderboard.html?quiz_id=${quiz.id}" class="flex-1 text-center text-sm text-white bg-gray-500 hover:bg-gray-600 px-3 py-2 rounded-md">Peringkat</a>
+                    </div>
+                    <div class="flex justify-center items-center gap-2">
                         ${startButton}
                         ${finishButton}
                     </div>
@@ -646,7 +651,7 @@ document.addEventListener('DOMContentLoaded', () => {
             break;
         case 'dashboard-student.html':
             commonAuthElements();
-            loadStudentHistory(); // PANGGIL FUNGSI RIWAYAT DI SINI
+            loadStudentHistory();
             document.getElementById('join-quiz-form').addEventListener('submit', (e) => {
                 e.preventDefault();
                 const code = document.getElementById('quiz-code').value;
