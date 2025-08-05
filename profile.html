@@ -1,0 +1,70 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Pengaturan Akun - Quiz App</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="/assets/css/style.css">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+</head>
+<body class="bg-gray-50 font-['Inter']">
+    <!-- Navbar -->
+    <nav class="bg-white shadow-sm">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex justify-between items-center h-16">
+                <a href="#" id="back-to-dashboard" class="text-indigo-600 hover:text-indigo-800">&larr; Kembali ke Dashboard</a>
+                <button id="logout-button" class="px-4 py-2 text-sm font-medium text-white bg-red-500 rounded-lg hover:bg-red-600">Keluar</button>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Main Content -->
+    <main class="max-w-4xl mx-auto py-8 px-4 sm:px-6 lg:px-8">
+        <h1 class="text-3xl font-bold text-gray-800 mb-8">Pengaturan Akun</h1>
+
+        <div class="bg-white p-8 rounded-lg shadow-md">
+            <form id="profile-form" class="space-y-8">
+                <!-- Profile Picture Section -->
+                <div class="flex items-center space-x-6">
+                    <img id="profile-picture-preview" src="https://placehold.co/128x128/e2e8f0/a0aec0?text=Foto" alt="Foto Profil" class="w-32 h-32 rounded-full object-cover border-4 border-gray-200">
+                    <div>
+                        <label for="profile-picture-upload" class="cursor-pointer px-4 py-2 bg-indigo-100 text-indigo-700 font-semibold rounded-lg hover:bg-indigo-200">
+                            Unggah Foto Baru
+                        </label>
+                        <input type="file" id="profile-picture-upload" class="hidden" accept="image/*">
+                        <p class="text-xs text-gray-500 mt-2">PNG, JPG, GIF hingga 2MB.</p>
+                    </div>
+                </div>
+
+                <!-- Personal Information Section -->
+                <div>
+                    <label for="full-name" class="block text-sm font-medium text-gray-700">Nama Lengkap</label>
+                    <input type="text" id="full-name" required class="mt-1 block w-full max-w-lg px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500">
+                </div>
+
+                <!-- Change Password Section -->
+                <div>
+                    <h3 class="text-lg font-medium text-gray-800 mb-2">Ubah Kata Sandi</h3>
+                    <div class="space-y-4 max-w-lg">
+                        <div>
+                            <label for="new-password" class="block text-sm font-medium text-gray-700">Kata Sandi Baru</label>
+                            <input type="password" id="new-password" placeholder="Kosongkan jika tidak ingin mengubah" class="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500">
+                        </div>
+                    </div>
+                </div>
+
+                <div class="border-t border-gray-200 pt-5">
+                    <button type="submit" class="inline-flex justify-center py-2 px-6 border border-transparent shadow-sm text-sm font-medium rounded-md text-white bg-indigo-600 hover:bg-indigo-700">
+                        Simpan Perubahan
+                    </button>
+                </div>
+            </form>
+            <div id="success-message" class="mt-4 text-green-600"></div>
+            <div id="error-message" class="mt-4 text-red-500"></div>
+        </div>
+    </main>
+
+    <script type="module" src="/assets/js/app.js"></script>
+</body>
+</html>

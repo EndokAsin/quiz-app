@@ -1,0 +1,89 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Edit Kuis - Quiz App</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="/assets/css/style.css">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+</head>
+<body class="bg-gray-50 font-['Inter']">
+    <!-- Navbar -->
+    <nav class="bg-white shadow-sm">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex justify-between items-center h-16">
+                 <a href="/dashboard-teacher.html" class="text-indigo-600 hover:text-indigo-800">&larr; Kembali ke Dashboard</a>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Main Content -->
+    <main class="max-w-7xl mx-auto py-8 px-4 sm:px-6 lg:px-8">
+        <h1 id="quiz-title-editor" class="text-3xl font-bold text-gray-800 mb-2">Memuat Kuis...</h1>
+        <p id="quiz-code-editor" class="text-gray-500 mb-8"></p>
+
+        <!-- Add Question Form -->
+        <div class="bg-white p-6 rounded-lg shadow-md mb-8">
+            <h2 class="text-2xl font-semibold text-gray-700 mb-4">Tambah Pertanyaan Baru</h2>
+            <form id="add-question-form" class="space-y-4">
+                <!-- Question Text -->
+                <div>
+                    <label for="question-text" class="block text-sm font-medium text-gray-700">Teks Pertanyaan</label>
+                    <textarea id="question-text" required rows="3" class="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500"></textarea>
+                </div>
+                <!-- Question Type and Time Limit -->
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    <div>
+                        <label for="question-type" class="block text-sm font-medium text-gray-700">Tipe Pertanyaan</label>
+                        <select id="question-type" class="mt-1 block w-full px-3 py-2 border border-gray-300 bg-white rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500">
+                            <option value="multiple_choice">Pilihan Ganda</option>
+                            <option value="essay">Uraian</option>
+                        </select>
+                    </div>
+                    <div>
+                        <label for="time-limit" class="block text-sm font-medium text-gray-700">Batas Waktu (detik)</label>
+                        <input type="number" id="time-limit" value="30" required class="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500">
+                    </div>
+                </div>
+                <!-- Answer Options (for multiple choice) -->
+                <div id="mc-options-container" class="space-y-2">
+                    <label class="block text-sm font-medium text-gray-700">Opsi Jawaban</label>
+                    <div class="flex items-center gap-2">
+                        <span class="font-bold">A.</span>
+                        <input type="text" name="option" placeholder="Opsi A" class="block w-full px-3 py-2 border border-gray-300 rounded-md">
+                    </div>
+                    <div class="flex items-center gap-2">
+                        <span class="font-bold">B.</span>
+                        <input type="text" name="option" placeholder="Opsi B" class="block w-full px-3 py-2 border border-gray-300 rounded-md">
+                    </div>
+                    <div class="flex items-center gap-2">
+                        <span class="font-bold">C.</span>
+                        <input type="text" name="option" placeholder="Opsi C" class="block w-full px-3 py-2 border border-gray-300 rounded-md">
+                    </div>
+                    <div class="flex items-center gap-2">
+                        <span class="font-bold">D.</span>
+                        <input type="text" name="option" placeholder="Opsi D" class="block w-full px-3 py-2 border border-gray-300 rounded-md">
+                    </div>
+                </div>
+                <!-- Correct Answer -->
+                <div>
+                    <label for="correct-answer" class="block text-sm font-medium text-gray-700">Jawaban Benar</label>
+                    <input type="text" id="correct-answer" required placeholder="Contoh: A (untuk Pilihan Ganda) atau teks jawaban untuk Uraian" class="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500">
+                </div>
+                <button type="submit" class="w-full sm:w-auto inline-flex justify-center py-2 px-4 border border-transparent shadow-sm text-sm font-medium rounded-md text-white bg-indigo-600 hover:bg-indigo-700">Tambah Pertanyaan</button>
+            </form>
+        </div>
+
+        <!-- Existing Questions List -->
+        <div>
+            <h2 class="text-2xl font-semibold text-gray-700 mb-4">Daftar Pertanyaan</h2>
+            <div id="questions-list" class="space-y-4">
+                <p>Memuat pertanyaan...</p>
+            </div>
+        </div>
+    </main>
+
+    <script type="module" src="/assets/js/app.js"></script>
+</body>
+</html>

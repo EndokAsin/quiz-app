@@ -1,0 +1,40 @@
+/* assets/css/style.css */
+
+/* Menggunakan font Inter yang telah diimpor di HTML */
+body {
+    font-family: 'Inter', sans-serif;
+}
+
+/* Style untuk placeholder input kode kuis agar lebih menarik */
+#quiz-code::placeholder {
+    letter-spacing: normal;
+    font-weight: normal;
+    text-transform: none;
+}
+
+/* Animasi sederhana untuk kartu kuis */
+.quiz-card {
+    transition: transform 0.2s ease-in-out, box-shadow 0.2s ease-in-out;
+}
+
+.quiz-card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
+}
+
+/* Gaya untuk halaman kuis fullscreen */
+.quiz-fullscreen {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-color: #4F46E5; /* Indigo-600 */
+    color: white;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    z-index: 50;
+    padding: 2rem;
+}
