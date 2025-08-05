@@ -146,12 +146,12 @@ const loadProfilePage = async () => {
             }
 
             if (file) {
-                // REVISI: Menggunakan nama bucket 'profile_pictures' sesuai permintaan.
+                // REVISI: Menggunakan nama bucket 'profile' sesuai permintaan.
                 const filePath = `${user.id}/${Date.now()}-${file.name}`;
-                const { error: uploadError } = await supabase.storage.from('profile_pictures').upload(filePath, file);
+                const { error: uploadError } = await supabase.storage.from('profile').upload(filePath, file);
                 if (uploadError) throw uploadError;
 
-                const { data: { publicUrl } } = supabase.storage.from('profile_pictures').getPublicUrl(filePath);
+                const { data: { publicUrl } } = supabase.storage.from('profile').getPublicUrl(filePath);
                 const { error: urlError } = await supabase.from('users').update({ profile_picture_url: publicUrl }).eq('id', user.id);
                 if (urlError) throw urlError;
             }
