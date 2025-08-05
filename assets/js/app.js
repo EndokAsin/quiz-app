@@ -560,135 +560,139 @@ document.addEventListener('DOMContentLoaded', async () => {
     const path = window.location.pathname.split('/').pop() || 'index.html';
     const params = new URLSearchParams(window.location.search);
 
-    const commonAuthElements = async () => {
+    // Fungsi ini sekarang hanya menangani autentikasi dan pengaturan UI umum
+    const initializePage = async () => {
         const user = await getUser();
         if (!user) {
-            if (path !== 'index.html' && path !== 'register.html' && path !== 'verify-otp.html' && path !== 'forgot-password.html') {
+            // Jika pengguna tidak login, batasi akses hanya ke halaman publik
+            const publicPages = ['index.html', 'register.html', 'verify-otp.html', 'forgot-password.html'];
+            if (!publicPages.includes(path)) {
                 window.location.href = 'index.html';
             }
-            return null; // Return null if no user
+            return null; // Kembalikan null jika tidak ada pengguna
         }
+
         const profile = await getUserProfile(user.id);
         if (!profile) {
+            // Jika ada sesi tapi profil tidak ditemukan (misal, error sinkronisasi), logout
             await handleLogout();
-            return null; // Return null if no profile
+            return null;
         }
         
+        // Atur elemen UI umum yang ada di banyak halaman
         const userNameDisplay = document.getElementById('user-name-display');
         if (userNameDisplay) userNameDisplay.textContent = profile.full_name;
 
         const logoutButton = document.getElementById('logout-button');
         if (logoutButton) logoutButton.addEventListener('click', handleLogout);
 
-        // REVISI: Logika untuk mengatur tautan "Kembali ke Dashboard" secara dinamis
-        const backToDashboardLink = document.getElementById('back-to-dashboard-link');
-        if (backToDashboardLink) {
-            backToDashboardLink.href = profile.role === 'teacher' ? 'dashboard-teacher.html' : 'dashboard-student.html';
-        }
-        return profile; // Return profile for further use
+        return profile; // Kembalikan profil untuk digunakan oleh logika spesifik halaman
     };
 
-    const profile = await commonAuthElements();
+    const profile = await initializePage();
 
-    switch (path) {
-        case 'index.html':
-            document.getElementById('login-form').addEventListener('submit', (e) => {
-                e.preventDefault();
-                handleLogin(e.target.email.value, e.target.password.value);
-            });
-            break;
-        case 'register.html':
-            document.getElementById('register-form').addEventListener('submit', (e) => {
-                e.preventDefault();
-                handleRegister(e.target.name.value, e.target.email.value, e.target.password.value, e.target.role.value);
-            });
-            break;
-        case 'verify-otp.html':
-            const email = params.get('email');
-            if (email) document.getElementById('user-email-display').textContent = email;
-            document.getElementById('verify-otp-form').addEventListener('submit', (e) => {
-                e.preventDefault();
-                handleVerifyOtp(email, e.target.otp.value);
-            });
-            
-            const resendButton = document.getElementById('resend-otp-button');
-            if(resendButton) {
-                let countdown = 60; let intervalId;
-                const startTimer = () => {
-                    resendButton.disabled = true;
-                    countdown = 60;
-                    resendButton.innerHTML = `Kirim ulang kode (<span id="resend-timer">${countdown}</span>s)`;
-                    intervalId = setInterval(() => {
-                        countdown--;
-                        const timerEl = document.getElementById('resend-timer');
-                        if (timerEl) timerEl.textContent = countdown;
-                        if (countdown <= 0) {
-                            clearInterval(intervalId);
-                            resendButton.disabled = false;
-                            resendButton.textContent = 'Kirim ulang kode';
-                        }
-                    }, 1000);
-                };
-                resendButton.addEventListener('click', async () => {
-                    if (resendButton.disabled) return;
-                    try {
-                        const { error } = await supabase.auth.resend({ type: 'signup', email: email });
-                        if (error) throw error;
-                        alert('Kode verifikasi baru telah berhasil dikirim.');
-                        startTimer();
-                    } catch (error) {
-                        showError(`Gagal mengirim ulang kode: ${error.message}`);
+    // Jalankan logika spesifik halaman hanya jika ada profil yang valid (pengguna sudah login)
+    if (profile) {
+        switch (path) {
+            case 'dashboard-teacher.html':
+                loadTeacherQuizzes();
+                document.getElementById('create-quiz-form').addEventListener('submit', (e) => {
+                    e.preventDefault();
+                    handleCreateQuiz(e.target['quiz-title'].value, e.target['quiz-type'].value);
+                });
+                document.getElementById('quiz-list').addEventListener('click', (e) => {
+                    if (e.target.matches('.quiz-action-btn')) {
+                        const quizId = e.target.dataset.quizId;
+                        const action = e.target.dataset.action;
+                        if (action === 'start') handleQuizStatusChange(quizId, 'active');
+                        else if (action === 'finish') handleQuizStatusChange(quizId, 'finished');
                     }
                 });
-                startTimer();
-            }
-            break;
-        case 'dashboard-teacher.html':
-            if (profile) loadTeacherQuizzes();
-            document.getElementById('create-quiz-form').addEventListener('submit', (e) => {
-                e.preventDefault();
-                handleCreateQuiz(e.target['quiz-title'].value, e.target['quiz-type'].value);
-            });
-            document.getElementById('quiz-list').addEventListener('click', (e) => {
-                if (e.target.matches('.quiz-action-btn')) {
-                    const quizId = e.target.dataset.quizId;
-                    const action = e.target.dataset.action;
-                    if (action === 'start') {
-                        handleQuizStatusChange(quizId, 'active');
-                    } else if (action === 'finish') {
-                        handleQuizStatusChange(quizId, 'finished');
-                    }
-                }
-            });
-            break;
-        case 'dashboard-student.html':
-            if (profile) loadStudentHistory();
-            document.getElementById('join-quiz-form').addEventListener('submit', (e) => {
-                e.preventDefault();
-                const code = document.getElementById('quiz-code').value;
-                handleJoinQuiz(code);
-            });
-            break;
-        case 'profile.html':
-            if (profile) loadProfilePage();
-            break;
-        case 'edit-quiz.html':
-            if (profile) {
+                break;
+            case 'dashboard-student.html':
+                loadStudentHistory();
+                document.getElementById('join-quiz-form').addEventListener('submit', (e) => {
+                    e.preventDefault();
+                    const code = document.getElementById('quiz-code').value;
+                    handleJoinQuiz(code);
+                });
+                break;
+            case 'profile.html':
+                loadProfilePage();
+                break;
+            case 'edit-quiz.html':
                 const quizIdEdit = params.get('quiz_id');
                 loadQuizForEditing(quizIdEdit);
-            }
-            break;
-        case 'quiz.html':
-            if (profile) {
+                break;
+            case 'quiz.html':
                 const quizIdPlay = params.get('id');
                 loadQuizForStudent(quizIdPlay);
-            }
-            break;
-        case 'leaderboard.html':
-            if (profile) {
+                break;
+            case 'leaderboard.html':
+                // REVISI: Atur tautan kembali ke dashboard berdasarkan peran pengguna
+                const backToDashboardLink = document.getElementById('back-to-dashboard-link');
+                if (backToDashboardLink) {
+                    backToDashboardLink.href = profile.role === 'teacher' ? 'dashboard-teacher.html' : 'dashboard-student.html';
+                }
                 const quizIdLeaderboard = params.get('quiz_id');
                 loadLeaderboard(quizIdLeaderboard);
-            }
-            break;
+                break;
+        }
+    } else {
+        // Logika untuk halaman publik (jika pengguna belum login)
+        switch (path) {
+            case 'index.html':
+                document.getElementById('login-form').addEventListener('submit', (e) => {
+                    e.preventDefault();
+                    handleLogin(e.target.email.value, e.target.password.value);
+                });
+                break;
+            case 'register.html':
+                document.getElementById('register-form').addEventListener('submit', (e) => {
+                    e.preventDefault();
+                    handleRegister(e.target.name.value, e.target.email.value, e.target.password.value, e.target.role.value);
+                });
+                break;
+            case 'verify-otp.html':
+                const email = params.get('email');
+                if (email) document.getElementById('user-email-display').textContent = email;
+                document.getElementById('verify-otp-form').addEventListener('submit', (e) => {
+                    e.preventDefault();
+                    handleVerifyOtp(email, e.target.otp.value);
+                });
+                
+                const resendButton = document.getElementById('resend-otp-button');
+                if(resendButton) {
+                    let countdown = 60; let intervalId;
+                    const startTimer = () => {
+                        resendButton.disabled = true;
+                        countdown = 60;
+                        resendButton.innerHTML = `Kirim ulang kode (<span id="resend-timer">${countdown}</span>s)`;
+                        intervalId = setInterval(() => {
+                            countdown--;
+                            const timerEl = document.getElementById('resend-timer');
+                            if (timerEl) timerEl.textContent = countdown;
+                            if (countdown <= 0) {
+                                clearInterval(intervalId);
+                                resendButton.disabled = false;
+                                resendButton.textContent = 'Kirim ulang kode';
+                            }
+                        }, 1000);
+                    };
+                    resendButton.addEventListener('click', async () => {
+                        if (resendButton.disabled) return;
+                        try {
+                            const { error } = await supabase.auth.resend({ type: 'signup', email: email });
+                            if (error) throw error;
+                            alert('Kode verifikasi baru telah berhasil dikirim.');
+                            startTimer();
+                        } catch (error) {
+                            showError(`Gagal mengirim ulang kode: ${error.message}`);
+                        }
+                    });
+                    startTimer();
+                }
+                break;
+        }
     }
 });
