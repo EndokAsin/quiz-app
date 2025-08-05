@@ -1,4 +1,4 @@
-// assets/js/app.js (Lengkap & Final)
+// assets/js/app.js (Revisi Penuh)
 
 import { supabase } from './supabase.js';
 
@@ -405,12 +405,14 @@ const loadAnswersForReview = async (quizId) => {
             const newScore = document.getElementById(`score-${answerId}`).value;
             const statusEl = document.getElementById(`status-${answerId}`);
 
+            // 1. Update skor di tabel 'answers'
             const { error: updateError } = await supabase.from('answers').update({ score: parseInt(newScore, 10) }).eq('id', answerId);
             if (updateError) {
                 statusEl.textContent = 'Gagal menyimpan!';
                 return;
             }
 
+            // 2. Hitung ulang total skor untuk leaderboard
             const { data: allAnswers, error: allAnswersError } = await supabase.from('answers').select('score').eq('quiz_id', quizId).eq('student_id', studentId);
             if (allAnswersError) {
                 statusEl.textContent = 'Gagal update leaderboard!';
@@ -419,6 +421,7 @@ const loadAnswersForReview = async (quizId) => {
 
             const totalScore = allAnswers.reduce((sum, current) => sum + (current.score || 0), 0);
 
+            // 3. Update leaderboard
             await supabase.from('leaderboard').upsert({ quiz_id: quizId, student_id: studentId, total_score: totalScore }, { onConflict: 'quiz_id, student_id' });
 
             statusEl.textContent = 'Tersimpan!';
