@@ -9,13 +9,11 @@
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
 </head>
 <body class="font-['Inter'] bg-gray-900 transition-colors duration-500">
-    <!-- Feedback Overlay -->
     <div id="feedback-overlay" class="hidden fixed inset-0 items-center justify-center z-50">
         <h2 id="feedback-text" class="text-6xl font-bold text-white"></h2>
     </div>
 
     <div id="quiz-container" class="hidden flex flex-col items-center justify-between min-h-screen text-white p-4 sm:p-8">
-        <!-- Header: Soal dan Timer -->
         <header class="w-full max-w-4xl text-center">
             <div class="flex justify-between items-center mb-4">
                 <span id="question-counter" class="text-lg font-medium">Soal 1 / 10</span>
@@ -23,15 +21,17 @@
                     <span id="timer">00:30</span>
                 </div>
             </div>
+            <!-- Wadah untuk menampilkan gambar soal -->
+            <div id="question-image-container" class="my-6">
+                <!-- Gambar akan dimasukkan di sini oleh JavaScript -->
+            </div>
             <h1 id="question-text" class="text-3xl sm:text-4xl font-bold">Memuat pertanyaan...</h1>
         </header>
 
-        <!-- Main: Opsi Jawaban (Akan diisi oleh JS) -->
         <main id="answer-options" class="w-full max-w-4xl my-8">
-            <!-- Opsi jawaban untuk pilihan ganda atau esai akan di-generate oleh JS di sini -->
+            <!-- Opsi jawaban akan di-generate oleh JS di sini -->
         </main>
 
-        <!-- Footer: Tombol Aksi -->
         <footer class="w-full max-w-4xl text-center">
             <button id="submit-answer-button" class="w-full md:w-auto px-12 py-4 text-lg font-bold text-white bg-indigo-600 rounded-lg hover:bg-indigo-700 transition-colors disabled:bg-gray-500">
                 Kirim Jawaban
@@ -39,17 +39,15 @@
         </footer>
     </div>
 
-    <!-- Halaman Tunggu -->
     <div id="waiting-screen" class="flex flex-col items-center justify-center min-h-screen text-white p-4">
         <h1 id="quiz-title-waiting" class="text-4xl font-bold mb-4">Memuat Kuis...</h1>
         <p class="text-xl">Kuis akan dimulai sebentar lagi. Mohon tunggu dosen memulai sesi.</p>
     </div>
 
-    <!-- Halaman Hasil Akhir -->
     <div id="end-screen" class="hidden flex-col items-center justify-center min-h-screen text-white p-4">
         <h1 class="text-5xl font-bold mb-4">Kuis Selesai!</h1>
         <p class="text-2xl mb-8">Anda telah menyelesaikan kuis ini.</p>
-        <a href="#" id="leaderboard-link" class="px-8 py-4 text-lg font-bold text-gray-900 bg-yellow-400 rounded-lg hover:bg-yellow-500">
+        <a href="#" id="leaderboard-link" class="px-8 py-4 text-lg font-bold text-gray-900 bg-yellow-400 hover:bg-yellow-500">
             Lihat Papan Peringkat
         </a>
     </div>
