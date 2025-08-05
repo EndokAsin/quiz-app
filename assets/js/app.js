@@ -173,6 +173,10 @@ const handleQuizStatusChange = async (quizId, status) => {
         alert(`Gagal mengubah status kuis: ${error.message}`);
     } else {
         alert(`Kuis berhasil diubah ke status: ${status}!`);
+        // Muat ulang daftar kuis untuk memperbarui tampilan tombol
+        if (window.location.pathname.includes('dashboard-teacher.html')) {
+            loadTeacherQuizzes();
+        }
     }
 };
 
@@ -202,23 +206,13 @@ const loadTeacherQuizzes = async () => {
                 </div>
                 <div class="mt-4 flex justify-between items-center">
                     <a href="edit-quiz.html?quiz_id=${quiz.id}" class="text-sm text-white bg-blue-500 hover:bg-blue-600 px-3 py-1 rounded-md">Edit Soal</a>
-                    ${startButton}
-                    ${finishButton}
+                    <div class="flex gap-2">
+                        ${startButton}
+                        ${finishButton}
+                    </div>
                 </div>
             </div>
         `;
-    });
-
-    quizListDiv.addEventListener('click', (e) => {
-        if (e.target.matches('.quiz-action-btn')) {
-            const quizId = e.target.dataset.quizId;
-            const action = e.target.dataset.action;
-            if (action === 'start') {
-                handleQuizStatusChange(quizId, 'active');
-            } else if (action === 'finish') {
-                handleQuizStatusChange(quizId, 'finished');
-            }
-        }
     });
 };
 
@@ -233,7 +227,7 @@ const loadQuizForEditing = async (quizId) => {
 
     const questionsListDiv = document.getElementById('questions-list');
     const loadQuestions = async () => {
-        const { data: questions, error } = await supabase.from('questions').select('*').eq('quiz_id', quizId);
+        const { data: questions, error } = await supabase.from('questions').select('*').eq('quiz_id', quizId).order('created_at');
         questionsListDiv.innerHTML = '';
         if (questions && questions.length > 0) {
             questions.forEach(q => {
@@ -317,7 +311,7 @@ const loadQuizForStudent = async (quizId) => {
 
         const { data, error } = await supabase.from('questions').select('*').eq('quiz_id', quizId).order('created_at');
         if (error || !data || data.length === 0) {
-            document.body.innerHTML = '<h1>Kuis ini belum memiliki pertanyaan. Harap hubungi dosen Anda.</h1>';
+            document.body.innerHTML = '<h1 class="text-white text-center text-2xl p-8">Kuis ini belum memiliki pertanyaan. Harap hubungi dosen Anda.</h1>';
             return;
         }
         quizState.questions = data;
@@ -325,7 +319,8 @@ const loadQuizForStudent = async (quizId) => {
     };
 
     const displayQuestion = () => {
-        quizState.selectedAnswer = null; // Reset pilihan jawaban untuk soal baru
+        quizState.selectedAnswer = null; 
+        document.getElementById('submit-answer-button').disabled = false;
         if (quizState.currentQuestionIndex >= quizState.questions.length) {
             finishQuiz();
             return;
@@ -371,9 +366,35 @@ const loadQuizForStudent = async (quizId) => {
             }
         }, 1000);
     };
+    
+    const showFeedback = (isCorrect) => {
+        const overlay = document.getElementById('feedback-overlay');
+        const feedbackText = document.getElementById('feedback-text');
+        const body = document.body;
+
+        overlay.classList.remove('hidden');
+        overlay.classList.add('flex');
+        
+        if (isCorrect) {
+            feedbackText.textContent = 'Benar!';
+            body.classList.add('bg-green-500');
+        } else {
+            feedbackText.textContent = 'Salah!';
+            body.classList.add('bg-red-500');
+        }
+
+        setTimeout(() => {
+            overlay.classList.add('hidden');
+            overlay.classList.remove('flex');
+            body.classList.remove('bg-green-500', 'bg-red-500');
+            quizState.currentQuestionIndex++;
+            displayQuestion();
+        }, 1500); // Tampilkan feedback selama 1.5 detik
+    };
 
     const submitAnswer = async () => {
         clearInterval(quizState.timerId);
+        document.getElementById('submit-answer-button').disabled = true;
         const question = quizState.questions[quizState.currentQuestionIndex];
         const isCorrect = quizState.selectedAnswer === question.answer;
         
@@ -383,15 +404,11 @@ const loadQuizForStudent = async (quizId) => {
         
         const user = await getUser();
         await supabase.from('answers').insert({
-            quiz_id: quizId,
-            student_id: user.id,
-            question_id: question.id,
-            answer_text: quizState.selectedAnswer,
-            score: isCorrect ? 100 : 0,
+            quiz_id: quizId, student_id: user.id, question_id: question.id,
+            answer_text: quizState.selectedAnswer, score: isCorrect ? 100 : 0,
         });
-
-        quizState.currentQuestionIndex++;
-        displayQuestion();
+        
+        showFeedback(isCorrect);
     };
     
     const finishQuiz = async () => {
@@ -400,9 +417,7 @@ const loadQuizForStudent = async (quizId) => {
         document.getElementById('end-screen').classList.remove('hidden');
 
         await supabase.from('leaderboard').upsert({
-            quiz_id: quizId,
-            student_id: user.id,
-            total_score: quizState.score
+            quiz_id: quizId, student_id: user.id, total_score: quizState.score
         }, { onConflict: 'quiz_id, student_id' });
     };
 
@@ -422,7 +437,8 @@ const loadQuizForStudent = async (quizId) => {
 
     supabase.channel(`quiz-status:${quizId}`)
         .on('postgres_changes', { event: 'UPDATE', schema: 'public', table: 'quizzes', filter: `id=eq.${quizId}` }, (payload) => {
-            if (payload.new.status === 'active' && document.getElementById('waiting-screen')) {
+            const waitingScreen = document.getElementById('waiting-screen');
+            if (payload.new.status === 'active' && waitingScreen && !waitingScreen.classList.contains('hidden')) {
                 startQuizFlow();
             }
         })
@@ -465,16 +481,27 @@ const loadLeaderboard = async (quizId) => {
 // ROUTER HALAMAN
 // ===================================================================================
 document.addEventListener('DOMContentLoaded', () => {
-    const path = window.location.pathname.split('/').pop(); // Mengambil nama file saja
+    const path = window.location.pathname.split('/').pop() || 'index.html'; // Default ke index.html jika path kosong
     const params = new URLSearchParams(window.location.search);
 
-    const commonAuthElements = () => {
+    const commonAuthElements = async () => {
+        const user = await getUser();
+        if (!user) {
+            // Jika tidak ada user dan bukan di halaman login/register, redirect
+            if (path !== 'index.html' && path !== 'register.html' && path !== 'verify-otp.html' && path !== 'forgot-password.html') {
+                window.location.href = 'index.html';
+            }
+            return;
+        }
+        const profile = await getUserProfile(user.id);
+        const userNameDisplay = document.getElementById('user-name-display');
+        if (userNameDisplay) userNameDisplay.textContent = profile.full_name;
+
         const logoutButton = document.getElementById('logout-button');
         if (logoutButton) logoutButton.addEventListener('click', handleLogout);
     };
 
     switch (path) {
-        case '':
         case 'index.html':
             document.getElementById('login-form').addEventListener('submit', (e) => {
                 e.preventDefault();
@@ -534,6 +561,17 @@ document.addEventListener('DOMContentLoaded', () => {
                 e.preventDefault();
                 handleCreateQuiz(e.target['quiz-title'].value, e.target['quiz-type'].value);
             });
+            document.getElementById('quiz-list').addEventListener('click', (e) => {
+                if (e.target.matches('.quiz-action-btn')) {
+                    const quizId = e.target.dataset.quizId;
+                    const action = e.target.dataset.action;
+                    if (action === 'start') {
+                        handleQuizStatusChange(quizId, 'active');
+                    } else if (action === 'finish') {
+                        handleQuizStatusChange(quizId, 'finished');
+                    }
+                }
+            });
             break;
         case 'dashboard-student.html':
             commonAuthElements();
@@ -548,14 +586,17 @@ document.addEventListener('DOMContentLoaded', () => {
             loadProfilePage();
             break;
         case 'edit-quiz.html':
+            commonAuthElements();
             const quizIdEdit = params.get('quiz_id');
             loadQuizForEditing(quizIdEdit);
             break;
         case 'quiz.html':
+            commonAuthElements();
             const quizIdPlay = params.get('id');
             loadQuizForStudent(quizIdPlay);
             break;
         case 'leaderboard.html':
+            commonAuthElements();
             const quizIdLeaderboard = params.get('quiz_id');
             loadLeaderboard(quizIdLeaderboard);
             break;
