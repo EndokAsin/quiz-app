@@ -113,18 +113,18 @@ const loadProfilePage = async () => {
 
     document.getElementById('full-name').value = profile.full_name;
     if (profile.profile_picture_url) {
-        document.getElementById('profile-picture-preview').src = profile.profile_picture_url;
+        document.getElementById('profile_picture-preview').src = profile.profile_picture_url;
     }
     
     document.getElementById('back-to-dashboard').href = profile.role === 'teacher' ? 'dashboard-teacher.html' : 'dashboard-student.html';
 
-    const uploadInput = document.getElementById('profile-picture-upload');
+    const uploadInput = document.getElementById('profile_picture-upload');
     uploadInput.addEventListener('change', (e) => {
         const file = e.target.files[0];
         if (file) {
             const reader = new FileReader();
             reader.onload = (event) => {
-                document.getElementById('profile-picture-preview').src = event.target.result;
+                document.getElementById('profile_picture-preview').src = event.target.result;
             };
             reader.readAsDataURL(file);
         }
@@ -146,11 +146,11 @@ const loadProfilePage = async () => {
             }
 
             if (file) {
-                const filePath = `profile-picture/${user.id}/${Date.now()}-${file.name}`;
-                const { error: uploadError } = await supabase.storage.from('profile-picture').upload(filePath, file);
+                const filePath = `profile_picture/${user.id}/${Date.now()}-${file.name}`;
+                const { error: uploadError } = await supabase.storage.from('profile_picture').upload(filePath, file);
                 if (uploadError) throw uploadError;
 
-                const { data: { publicUrl } } = supabase.storage.from('profile-picture').getPublicUrl(filePath);
+                const { data: { publicUrl } } = supabase.storage.from('profile_picture').getPublicUrl(filePath);
                 const { error: urlError } = await supabase.from('users').update({ profile_picture_url: publicUrl }).eq('id', user.id);
                 if (urlError) throw urlError;
             }
@@ -568,11 +568,22 @@ document.addEventListener('DOMContentLoaded', () => {
             return;
         }
         const profile = await getUserProfile(user.id);
+        if (!profile) { // Tambahkan pengecekan jika profil tidak ditemukan
+            await handleLogout();
+            return;
+        }
+        
         const userNameDisplay = document.getElementById('user-name-display');
         if (userNameDisplay) userNameDisplay.textContent = profile.full_name;
 
         const logoutButton = document.getElementById('logout-button');
         if (logoutButton) logoutButton.addEventListener('click', handleLogout);
+
+        // REVISI: Logika untuk mengatur tautan "Kembali ke Dashboard" secara dinamis
+        const backToDashboardLink = document.getElementById('back-to-dashboard-link');
+        if (backToDashboardLink) {
+            backToDashboardLink.href = profile.role === 'teacher' ? 'dashboard-teacher.html' : 'dashboard-student.html';
+        }
     };
 
     switch (path) {
