@@ -146,7 +146,6 @@ const loadProfilePage = async () => {
             }
 
             if (file) {
-                // REVISI: Menggunakan nama bucket 'profile-picture' sesuai permintaan.
                 const filePath = `profile-picture/${user.id}/${Date.now()}-${file.name}`;
                 const { error: uploadError } = await supabase.storage.from('profile-picture').upload(filePath, file);
                 if (uploadError) throw uploadError;
@@ -300,13 +299,56 @@ const loadQuizForEditing = async (quizId) => {
 // ===================================================================================
 // LOGIKA KUIS MURID & PAPAN PERINGKAT
 // ===================================================================================
+const loadStudentHistory = async () => {
+    const user = await getUser();
+    if (!user) return;
+
+    const resultsListDiv = document.getElementById('results-list');
+    const loadingP = document.getElementById('loading-results');
+
+    try {
+        const { data: history, error } = await supabase
+            .from('leaderboard')
+            .select('quiz_id, total_score, quizzes(title)')
+            .eq('student_id', user.id);
+
+        if (error) throw error;
+
+        if (loadingP) loadingP.style.display = 'none';
+        if (resultsListDiv) resultsListDiv.innerHTML = '';
+
+        if (!history || history.length === 0) {
+            if (resultsListDiv) resultsListDiv.innerHTML = '<p class="text-gray-500">Anda belum mengerjakan kuis apapun.</p>';
+            return;
+        }
+
+        history.forEach(entry => {
+            if (entry.quizzes) {
+                const quizCard = `
+                    <div class="bg-white p-4 rounded-lg shadow-md flex justify-between items-center">
+                        <div>
+                            <h3 class="text-lg font-semibold text-gray-800">${entry.quizzes.title}</h3>
+                            <p class="text-sm text-gray-500">Skor Anda: <span class="font-bold">${entry.total_score}</span></p>
+                        </div>
+                        <a href="leaderboard.html?quiz_id=${entry.quiz_id}" class="text-sm text-indigo-600 hover:underline">Lihat Papan Peringkat</a>
+                    </div>
+                `;
+                if (resultsListDiv) resultsListDiv.innerHTML += quizCard;
+            }
+        });
+
+    } catch (error) {
+        if (loadingP) loadingP.textContent = 'Gagal memuat riwayat kuis.';
+        showError(error.message, 'loading-results');
+    }
+};
+
 const handleJoinQuiz = async (code) => {
     try {
         const { data: quiz, error } = await supabase.from('quizzes').select('id, status').eq('code', code.toUpperCase()).single();
         if (error || !quiz) throw new Error("Kuis dengan kode tersebut tidak ditemukan.");
         if (quiz.status === 'finished') throw new Error("Kuis ini sudah selesai.");
 
-        // REVISI: Cek apakah murid sudah pernah mengerjakan kuis ini
         const user = await getUser();
         const { data: existingAnswers, error: checkError } = await supabase
             .from('answers')
@@ -342,7 +384,6 @@ const loadQuizForStudent = async (quizId) => {
             return;
         }
         
-        // REVISI: Acak urutan pertanyaan
         shuffleArray(data);
         quizState.questions = data;
         
@@ -605,6 +646,7 @@ document.addEventListener('DOMContentLoaded', () => {
             break;
         case 'dashboard-student.html':
             commonAuthElements();
+            loadStudentHistory(); // PANGGIL FUNGSI RIWAYAT DI SINI
             document.getElementById('join-quiz-form').addEventListener('submit', (e) => {
                 e.preventDefault();
                 const code = document.getElementById('quiz-code').value;
