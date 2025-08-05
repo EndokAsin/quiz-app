@@ -5,7 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Dashboard Dosen - Quiz App</title>
     <script src="https://cdn.tailwindcss.com"></script>
-    <link rel="stylesheet" href="/assets/css/style.css">
+    <link rel="stylesheet" href="assets/css/style.css">
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
 </head>
 <body class="bg-gray-50 font-['Inter']">
@@ -15,7 +15,7 @@
             <div class="flex justify-between items-center h-16">
                 <div class="flex-shrink-0 font-bold text-xl text-indigo-600">QuizApp</div>
                 <div class="flex items-center space-x-4">
-                    <a href="/profile.html" id="user-name-display" class="text-gray-700 hover:text-indigo-600"></a>
+                    <a href="profile.html" id="user-name-display" class="text-gray-700 hover:text-indigo-600">Memuat...</a>
                     <button id="logout-button" class="px-4 py-2 text-sm font-medium text-white bg-red-500 rounded-lg hover:bg-red-600">Keluar</button>
                 </div>
             </div>
@@ -49,12 +49,12 @@
         <div>
             <h2 class="text-2xl font-semibold text-gray-700 mb-4">Kuis Saya</h2>
             <div id="quiz-list" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                <!-- Quiz cards will be injected here by JavaScript -->
+                <!-- Kartu kuis akan dimasukkan di sini oleh JavaScript -->
                 <p id="loading-quizzes">Memuat kuis Anda...</p>
             </div>
         </div>
     </main>
 
-    <script type="module" src="/assets/js/app.js"></script>
+    <script type="module" src="assets/js/app.js"></script>
 </body>
 </html>
