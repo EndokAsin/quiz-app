@@ -216,12 +216,10 @@ const loadTeacherQuizzes = async () => {
                         <p class="text-2xl font-bold tracking-widest text-indigo-600">${quiz.code}</p>
                     </div>
                 </div>
-                <div class="mt-4 pt-4 border-t space-y-2">
-                    <div class="flex justify-between items-center gap-2">
-                        <a href="edit-quiz.html?quiz_id=${quiz.id}" class="flex-1 text-center text-sm text-white bg-blue-500 hover:bg-blue-600 px-3 py-2 rounded-md">Edit</a>
-                        <a href="leaderboard.html?quiz_id=${quiz.id}" class="flex-1 text-center text-sm text-white bg-gray-500 hover:bg-gray-600 px-3 py-2 rounded-md">Peringkat</a>
-                    </div>
+                <div class="mt-4 pt-4 border-t">
                     <div class="flex justify-center items-center gap-2">
+                        <a href="edit-quiz.html?quiz_id=${quiz.id}" class="text-sm text-white bg-blue-500 hover:bg-blue-600 px-3 py-2 rounded-md">Edit</a>
+                        <a href="leaderboard.html?quiz_id=${quiz.id}" class="text-sm text-white bg-gray-500 hover:bg-gray-600 px-3 py-2 rounded-md">Peringkat</a>
                         ${startButton}
                         ${finishButton}
                     </div>
