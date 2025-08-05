@@ -113,18 +113,18 @@ const loadProfilePage = async () => {
 
     document.getElementById('full-name').value = profile.full_name;
     if (profile.profile_picture_url) {
-        document.getElementById('profile_picture-preview').src = profile.profile_picture_url;
+        document.getElementById('profile-picture-preview').src = profile.profile_picture_url;
     }
     
     document.getElementById('back-to-dashboard').href = profile.role === 'teacher' ? 'dashboard-teacher.html' : 'dashboard-student.html';
 
-    const uploadInput = document.getElementById('profile_picture-upload');
+    const uploadInput = document.getElementById('profile-picture-upload');
     uploadInput.addEventListener('change', (e) => {
         const file = e.target.files[0];
         if (file) {
             const reader = new FileReader();
             reader.onload = (event) => {
-                document.getElementById('profile_picture-preview').src = event.target.result;
+                document.getElementById('profile-picture-preview').src = event.target.result;
             };
             reader.readAsDataURL(file);
         }
@@ -146,11 +146,12 @@ const loadProfilePage = async () => {
             }
 
             if (file) {
-                const filePath = `profile_picture/${user.id}/${Date.now()}-${file.name}`;
-                const { error: uploadError } = await supabase.storage.from('profile_picture').upload(filePath, file);
+                // REVISI: Menggunakan nama bucket 'profile_pictures' sesuai permintaan.
+                const filePath = `${user.id}/${Date.now()}-${file.name}`;
+                const { error: uploadError } = await supabase.storage.from('profile_pictures').upload(filePath, file);
                 if (uploadError) throw uploadError;
 
-                const { data: { publicUrl } } = supabase.storage.from('profile_picture').getPublicUrl(filePath);
+                const { data: { publicUrl } } = supabase.storage.from('profile_pictures').getPublicUrl(filePath);
                 const { error: urlError } = await supabase.from('users').update({ profile_picture_url: publicUrl }).eq('id', user.id);
                 if (urlError) throw urlError;
             }
@@ -555,7 +556,7 @@ const loadLeaderboard = async (quizId) => {
 // ===================================================================================
 // ROUTER HALAMAN
 // ===================================================================================
-document.addEventListener('DOMContentLoaded', () => {
+document.addEventListener('DOMContentLoaded', async () => {
     const path = window.location.pathname.split('/').pop() || 'index.html';
     const params = new URLSearchParams(window.location.search);
 
@@ -565,12 +566,12 @@ document.addEventListener('DOMContentLoaded', () => {
             if (path !== 'index.html' && path !== 'register.html' && path !== 'verify-otp.html' && path !== 'forgot-password.html') {
                 window.location.href = 'index.html';
             }
-            return;
+            return null; // Return null if no user
         }
         const profile = await getUserProfile(user.id);
-        if (!profile) { // Tambahkan pengecekan jika profil tidak ditemukan
+        if (!profile) {
             await handleLogout();
-            return;
+            return null; // Return null if no profile
         }
         
         const userNameDisplay = document.getElementById('user-name-display');
@@ -584,7 +585,10 @@ document.addEventListener('DOMContentLoaded', () => {
         if (backToDashboardLink) {
             backToDashboardLink.href = profile.role === 'teacher' ? 'dashboard-teacher.html' : 'dashboard-student.html';
         }
+        return profile; // Return profile for further use
     };
+
+    const profile = await commonAuthElements();
 
     switch (path) {
         case 'index.html':
@@ -640,8 +644,7 @@ document.addEventListener('DOMContentLoaded', () => {
             }
             break;
         case 'dashboard-teacher.html':
-            commonAuthElements();
-            loadTeacherQuizzes();
+            if (profile) loadTeacherQuizzes();
             document.getElementById('create-quiz-form').addEventListener('submit', (e) => {
                 e.preventDefault();
                 handleCreateQuiz(e.target['quiz-title'].value, e.target['quiz-type'].value);
@@ -659,8 +662,7 @@ document.addEventListener('DOMContentLoaded', () => {
             });
             break;
         case 'dashboard-student.html':
-            commonAuthElements();
-            loadStudentHistory();
+            if (profile) loadStudentHistory();
             document.getElementById('join-quiz-form').addEventListener('submit', (e) => {
                 e.preventDefault();
                 const code = document.getElementById('quiz-code').value;
@@ -668,23 +670,25 @@ document.addEventListener('DOMContentLoaded', () => {
             });
             break;
         case 'profile.html':
-            commonAuthElements();
-            loadProfilePage();
+            if (profile) loadProfilePage();
             break;
         case 'edit-quiz.html':
-            commonAuthElements();
-            const quizIdEdit = params.get('quiz_id');
-            loadQuizForEditing(quizIdEdit);
+            if (profile) {
+                const quizIdEdit = params.get('quiz_id');
+                loadQuizForEditing(quizIdEdit);
+            }
             break;
         case 'quiz.html':
-            commonAuthElements();
-            const quizIdPlay = params.get('id');
-            loadQuizForStudent(quizIdPlay);
+            if (profile) {
+                const quizIdPlay = params.get('id');
+                loadQuizForStudent(quizIdPlay);
+            }
             break;
         case 'leaderboard.html':
-            commonAuthElements();
-            const quizIdLeaderboard = params.get('quiz_id');
-            loadLeaderboard(quizIdLeaderboard);
+            if (profile) {
+                const quizIdLeaderboard = params.get('quiz_id');
+                loadLeaderboard(quizIdLeaderboard);
+            }
             break;
     }
 });
