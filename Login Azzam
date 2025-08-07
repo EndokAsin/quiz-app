@@ -3,12 +3,12 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Login - Quiz App</title>
+    <title>Dashboard Murid - Quiz App</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="stylesheet" href="assets/css/style.css">
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
     <style>
-        /* Keyframes for animations */
+        /* アニメーション定義 */
         @keyframes fadeInUp {
             from {
                 opacity: 0;
@@ -20,204 +20,141 @@
             }
         }
         
-        @keyframes floatLabel {
-            from {
-                transform: translateY(0) scale(1);
-                opacity: 1;
+        @keyframes pulse {
+            0%, 100% {
+                transform: scale(1);
             }
-            to {
-                transform: translateY(-24px) scale(0.85);
-                opacity: 1;
-            }
-        }
-        
-        @keyframes pulseBorder {
-            0% {
-                box-shadow: 0 0 0 0 rgba(99, 102, 241, 0.4);
-            }
-            70% {
-                box-shadow: 0 0 0 6px rgba(99, 102, 241, 0);
-            }
-            100% {
-                box-shadow: 0 0 0 0 rgba(99, 102, 241, 0);
+            50% {
+                transform: scale(1.05);
             }
         }
         
         .animate-fadeInUp {
-            animation: fadeInUp 0.8s ease-out forwards;
+            animation: fadeInUp 0.6s ease-out forwards;
         }
         
-        .animate-floatLabel {
-            animation: floatLabel 0.3s ease-out forwards;
+        .animate-pulse-once {
+            animation: pulse 0.5s ease-out;
         }
         
-        .animate-pulseBorder {
-            animation: pulseBorder 1s ease-out;
+        .delay-100 {
+            animation-delay: 0.1s;
         }
         
-        /* Floating label styles */
-        .floating-label-group {
-            position: relative;
-            margin-top: 1.5rem;
+        /* ウェルカムテキストのグラデーション */
+        .welcome-text {
+            background: linear-gradient(90deg, #4f46e5, #7c3aed);
+            -webkit-background-clip: text;
+            background-clip: text;
+            color: transparent;
+            display: inline-block;
         }
         
-        .floating-label {
-            position: absolute;
-            top: 1rem;
-            left: 1rem;
-            color: #6b7280;
-            pointer-events: none;
-            transition: all 0.3s ease;
-            transform-origin: left center;
-        }
-        
-        input:focus ~ .floating-label,
-        input:not(:placeholder-shown) ~ .floating-label {
-            transform: translateY(-24px) scale(0.85);
-            color: #6366f1;
-        }
-        
-        /* Password toggle button */
-        .password-toggle {
-            position: absolute;
-            right: 0.75rem;
-            top: 50%;
-            transform: translateY(-50%);
-            cursor: pointer;
-            color: #9ca3af;
-            transition: color 0.2s ease;
-        }
-        
-        .password-toggle:hover {
-            color: #6366f1;
+        /* モーション削減対応 */
+        @media (prefers-reduced-motion: reduce) {
+            .animate-fadeInUp,
+            .animate-pulse-once {
+                animation: none;
+            }
         }
     </style>
 </head>
-<body class="bg-gray-100 font-['Inter']">
-    <div class="flex items-center justify-center min-h-screen">
-        <div class="w-full max-w-md p-8 space-y-6 bg-white rounded-lg shadow-md opacity-0 animate-fadeInUp">
-            <div class="flex justify-center">
-                <img src="assets/images/Logo_AICOMS_Telkom_University.png" alt="AICOMS Logo" class="h-16 mb-4 transition-transform duration-300 hover:scale-105">
-            </div>
-            <h1 class="text-3xl font-bold text-center text-gray-800 transition duration-500 transform hover:scale-105">Selamat Datang!!!</h1>
-            <p class="text-center text-gray-600">Login ke Akun Anda</p>
-            
-            <form id="login-form" class="space-y-6">
-                <!-- Animated Email Input -->
-                <div class="floating-label-group">
-                    <input 
-                        type="email" 
-                        id="email" 
-                        name="email" 
-                        placeholder=" "
-                        required
-                        class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent transition-all duration-300"
-                    >
-                    <label for="email" class="floating-label">Email</label>
-                    <div class="absolute bottom-0 left-0 h-0.5 bg-indigo-500 w-0 transition-all duration-500"></div>
-                </div>
-                
-                <!-- Animated Password Input -->
-                <div class="floating-label-group relative">
-                    <input 
-                        type="password" 
-                        id="password" 
-                        name="password" 
-                        placeholder=" "
-                        required
-                        class="w-full px-4 py-3 pr-10 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent transition-all duration-300"
-                    >
-                    <label for="password" class="floating-label">Kata Sandi</label>
-                    <div class="absolute bottom-0 left-0 h-0.5 bg-indigo-500 w-0 transition-all duration-500"></div>
-                    <span class="password-toggle" id="togglePassword">
-                        <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+<body class="bg-gray-50 font-['Inter']">
+    <!-- ナビゲーションバー -->
+    <nav class="bg-white shadow-sm opacity-0 animate-fadeInUp">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex justify-between items-center h-16">
+                <div class="flex-shrink-0 font-bold text-xl text-indigo-600">QuizApp</div>
+                <div class="flex items-center space-x-4">
+                     <a href="profile.html" class="text-gray-500 hover:text-indigo-600 transition-colors duration-300 p-2 rounded-full hover:bg-gray-100">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z" />
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
                         </svg>
-                    </span>
+                    </a>
+                    <button id="logout-button" class="px-4 py-2 text-sm font-medium text-white bg-red-500 rounded-lg hover:bg-red-600 transition-all duration-300 transform hover:scale-105 focus:outline-none focus:ring-2 focus:ring-red-500 focus:ring-offset-2">
+                        Keluar
+                    </button>
                 </div>
-                
-                <div class="text-right">
-                    <a href="forgot-password.html" class="text-sm text-indigo-600 hover:underline transition duration-200 transform hover:translate-x-1">Lupa Kata Sandi?</a>
-                </div>
-                
-                <button type="submit"
-                        class="w-full py-3 font-semibold text-white bg-indigo-600 rounded-lg hover:bg-indigo-700 hover:scale-[1.02] focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 transition-all duration-300 relative overflow-hidden group">
-                    <span class="relative z-10">Masuk</span>
-                    <span class="absolute inset-0 bg-indigo-700 opacity-0 group-hover:opacity-20 transition-opacity duration-300"></span>
+            </div>
+        </div>
+    </nav>
+
+    <!-- メインコンテンツ -->
+    <main class="max-w-7xl mx-auto py-8 px-4 sm:px-6 lg:px-8">
+        <!-- ウェルカムセクション -->
+        <div class="mb-8 opacity-0 animate-fadeInUp delay-100">
+            <h1 class="text-3xl font-bold text-gray-800">
+                <span class="text-gray-800">Selamat Datang</span> 
+                <span id="welcome-user-name" class="text-red-600">Murid</span>
+            </h1>
+        </div>
+
+        <!-- クイズ参加セクション -->
+        <div class="bg-white p-6 rounded-lg shadow-md mb-8 max-w-lg mx-auto opacity-0 animate-fadeInUp delay-200 hover:shadow-lg transition-shadow duration-300">
+            <h2 class="text-2xl font-semibold text-gray-700 mb-4 text-center">Join Quiz</h2>
+            <form id="join-quiz-form" class="flex flex-col sm:flex-row items-center gap-4">
+                <input 
+                    type="text" 
+                    id="quiz-code" 
+                    required 
+                    placeholder="Masukkan Kode Quiz"
+                    class="flex-grow w-full text-center text-lg tracking-[0.5em] uppercase font-bold px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 transition-all duration-300"
+                >
+                <button 
+                    type="submit" 
+                    class="w-full sm:w-auto inline-flex justify-center py-2 px-4 border border-transparent shadow-sm text-sm font-medium rounded-md text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 transition-all duration-300 transform hover:scale-105"
+                >
+                    Join
                 </button>
             </form>
-
-            <div id="error-message" class="text-center text-red-500 text-sm"></div>
-
-            <p class="text-sm text-center text-gray-600">
-                Belum punya akun? <a href="register.html" class="font-medium text-indigo-600 hover:underline transition duration-200 transform hover:translate-x-1">Daftar di sini</a>
-            </p>
+            <div id="join-error" class="text-red-500 text-center mt-4"></div>
         </div>
-    </div>
-    
-    <script>
-        // Password visibility toggle
-        const togglePassword = document.querySelector('#togglePassword');
-        const password = document.querySelector('#password');
+
+        <!-- 結果セクション -->
+        <div>
+            <h2 class="text-2xl font-semibold text-gray-700 mb-4">Riwayat Kuis Saya</h2>
+            <div id="results-list" class="space-y-4">
+                <p id="loading-results">Memuat riwayat kuis...</p>
+            </div>
+        </div>
+    </main>
+
+    <script type="module">
+        // ユーザーデータの読み込み
+        import { supabase } from './assets/js/supabase.js';
         
-        togglePassword.addEventListener('click', function() {
-            const type = password.getAttribute('type') === 'password' ? 'text' : 'password';
-            password.setAttribute('type', type);
+        document.addEventListener('DOMContentLoaded', async () => {
+            // ユーザー情報を取得
+            const { data: { user } } = await supabase.auth.getUser();
             
-            // Toggle eye icon
-            this.innerHTML = type === 'password' ? 
-                '<svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" /><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" /></svg>' :
-                '<svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13.875 18.825A10.05 10.05 0 0112 19c-4.478 0-8.268-2.943-9.542-7a9.97 9.97 0 011.563-3.029m5.858.908a3 3 0 114.243 4.243M9.878 9.878l4.242 4.242M9.88 9.88l-3.29-3.29m7.532 7.532l3.29 3.29M3 3l3.59 3.59m0 0A9.953 9.953 0 0112 5c4.478 0 8.268 2.943 9.542 7a10.025 10.025 0 01-4.132 5.411m0 0L21 21" /></svg>';
-        });
-        
-        // Input focus animations
-        const inputs = document.querySelectorAll('input');
-        inputs.forEach(input => {
-            const floatingLabel = input.nextElementSibling;
-            const bottomLine = floatingLabel.nextElementSibling;
-            
-            input.addEventListener('focus', () => {
-                floatingLabel.classList.add('text-indigo-600');
-                bottomLine.style.width = '100%';
-                input.classList.add('animate-pulseBorder');
-            });
-            
-            input.addEventListener('blur', () => {
-                if (!input.value) {
-                    floatingLabel.classList.remove('text-indigo-600');
-                }
-                bottomLine.style.width = '0';
-                input.classList.remove('animate-pulseBorder');
-            });
-            
-            // Trigger float animation if there's already a value (e.g. after form error)
-            if (input.value) {
-                floatingLabel.classList.add('text-indigo-600');
-                floatingLabel.style.transform = 'translateY(-24px) scale(0.85)';
-            }
-        });
-        
-        // Form submission animation
-        document.getElementById('login-form').addEventListener('submit', function(e) {
-            e.preventDefault();
-            const button = this.querySelector('button[type="submit"]');
-            
-            // Show loading state
-            button.innerHTML = '<span class="relative z-10">Memproses...</span>';
-            button.classList.add('opacity-75', 'cursor-not-allowed');
-            
-            // Simulate API call
-            setTimeout(() => {
-                // Reset button after 2 seconds (simulated API response)
-                button.innerHTML = '<span class="relative z-10">Masuk</span>';
-                button.classList.remove('opacity-75', 'cursor-not-allowed');
+            if (user) {
+                // プロフィール情報を取得
+                const { data: profile } = await supabase
+                    .from('users')
+                    .select('full_name')
+                    .eq('id', user.id)
+                    .single();
                 
-                // Show error message (for demo purposes)
-                document.getElementById('error-message').textContent = 'Email atau kata sandi salah';
-            }, 2000);
+                if (profile) {
+                    // ユーザー名を表示
+                    const userNameElements = document.querySelectorAll('#user-name-display, #welcome-user-name');
+                    userNameElements.forEach(el => {
+                        el.textContent = profile.full_name;
+                    });
+                    
+                    // ウェルカムメッセージにアニメーションを追加
+                    document.getElementById('welcome-user-name').classList.add('animate-pulse-once');
+                }
+            }
+            
+            // ログアウトボタンの処理
+            document.getElementById('logout-button').addEventListener('click', async () => {
+                await supabase.auth.signOut();
+                window.location.href = 'index.html';
+            });
         });
-    </script>
+    </script> 
     <script type="module" src="assets/js/app.js"></script>
 </body>
 </html>
