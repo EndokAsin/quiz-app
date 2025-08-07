@@ -3,158 +3,29 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Dashboard Murid - Quiz App</title>
+    <title>Papan Peringkat - Quiz App</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="stylesheet" href="assets/css/style.css">
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
-    <style>
-        /* アニメーション定義 */
-        @keyframes fadeInUp {
-            from {
-                opacity: 0;
-                transform: translateY(20px);
-            }
-            to {
-                opacity: 1;
-                transform: translateY(0);
-            }
-        }
-        
-        @keyframes pulse {
-            0%, 100% {
-                transform: scale(1);
-            }
-            50% {
-                transform: scale(1.05);
-            }
-        }
-        
-        .animate-fadeInUp {
-            animation: fadeInUp 0.6s ease-out forwards;
-        }
-        
-        .animate-pulse-once {
-            animation: pulse 0.5s ease-out;
-        }
-        
-        .delay-100 {
-            animation-delay: 0.1s;
-        }
-        
-        /* ウェルカムテキストのグラデーション */
-        .welcome-text {
-            background: linear-gradient(90deg, #4f46e5, #7c3aed);
-            -webkit-background-clip: text;
-            background-clip: text;
-            color: transparent;
-            display: inline-block;
-        }
-        
-        /* モーション削減対応 */
-        @media (prefers-reduced-motion: reduce) {
-            .animate-fadeInUp,
-            .animate-pulse-once {
-                animation: none;
-            }
-        }
-    </style>
 </head>
-<body class="bg-gray-50 font-['Inter']">
-    <!-- ナビゲーションバー -->
-    <nav class="bg-white shadow-sm opacity-0 animate-fadeInUp">
-        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-            <div class="flex justify-between items-center h-16">
-                <div class="flex-shrink-0 font-bold text-xl text-indigo-600">QuizApp</div>
-                <div class="flex items-center space-x-4">
-                     <a href="profile.html" class="text-gray-500 hover:text-indigo-600 transition-colors duration-300 p-2 rounded-full hover:bg-gray-100">
-                        <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z" />
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
-                        </svg>
-                    </a>
-                    <button id="logout-button" class="px-4 py-2 text-sm font-medium text-white bg-red-500 rounded-lg hover:bg-red-600 transition-all duration-300 transform hover:scale-105 focus:outline-none focus:ring-2 focus:ring-red-500 focus:ring-offset-2">
-                        Keluar
-                    </button>
-                </div>
-            </div>
-        </div>
-    </nav>
-
-    <!-- メインコンテンツ -->
-    <main class="max-w-7xl mx-auto py-8 px-4 sm:px-6 lg:px-8">
-        <!-- ウェルカムセクション -->
-        <div class="mb-8 opacity-0 animate-fadeInUp delay-100">
-            <h1 class="text-3xl font-bold text-gray-800">
-                <span class="text-gray-800">Selamat Datang</span> 
-                <span id="welcome-user-name" class="text-red-600">Murid</span>
-            </h1>
+<body class="bg-gray-100 font-['Inter']">
+    <main class="max-w-4xl mx-auto py-8 px-4 sm:px-6 lg:px-8">
+        <div class="text-center mb-8">
+            <h1 id="quiz-title-leaderboard" class="text-4xl font-bold text-gray-800">Papan Peringkat</h1>
+            <p class="text-lg text-gray-600 mt-2">Hasil akhir kuis</p>
         </div>
 
-        <!-- クイズ参加セクション -->
-        <div class="bg-white p-6 rounded-lg shadow-md mb-8 max-w-lg mx-auto opacity-0 animate-fadeInUp delay-200 hover:shadow-lg transition-shadow duration-300">
-            <h2 class="text-2xl font-semibold text-gray-700 mb-4 text-center">Join Quiz</h2>
-            <form id="join-quiz-form" class="flex flex-col sm:flex-row items-center gap-4">
-                <input 
-                    type="text" 
-                    id="quiz-code" 
-                    required 
-                    placeholder="Masukkan Kode Quiz"
-                    class="flex-grow w-full text-center text-lg tracking-[0.5em] uppercase font-bold px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 transition-all duration-300"
-                >
-                <button 
-                    type="submit" 
-                    class="w-full sm:w-auto inline-flex justify-center py-2 px-4 border border-transparent shadow-sm text-sm font-medium rounded-md text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 transition-all duration-300 transform hover:scale-105"
-                >
-                    Join
-                </button>
-            </form>
-            <div id="join-error" class="text-red-500 text-center mt-4"></div>
+        <div id="leaderboard-list" class="space-y-4">
+            <p class="text-center text-gray-500">Memuat peringkat...</p>
         </div>
-
-        <!-- 結果セクション -->
-        <div>
-            <h2 class="text-2xl font-semibold text-gray-700 mb-4">Riwayat Kuis Saya</h2>
-            <div id="results-list" class="space-y-4">
-                <p id="loading-results">Memuat riwayat kuis...</p>
-            </div>
+        
+        <div class="text-center mt-12">
+             <!-- REVISI: Menambahkan ID unik pada tautan ini -->
+             <a href="#" id="back-to-dashboard-link" class="px-8 py-3 text-lg font-bold text-white bg-indigo-600 rounded-lg hover:bg-indigo-700">
+                Kembali ke Dashboard
+            </a>
         </div>
     </main>
-
-    <script type="module">
-        // ユーザーデータの読み込み
-        import { supabase } from './assets/js/supabase.js';
-        
-        document.addEventListener('DOMContentLoaded', async () => {
-            // ユーザー情報を取得
-            const { data: { user } } = await supabase.auth.getUser();
-            
-            if (user) {
-                // プロフィール情報を取得
-                const { data: profile } = await supabase
-                    .from('users')
-                    .select('full_name')
-                    .eq('id', user.id)
-                    .single();
-                
-                if (profile) {
-                    // ユーザー名を表示
-                    const userNameElements = document.querySelectorAll('#user-name-display, #welcome-user-name');
-                    userNameElements.forEach(el => {
-                        el.textContent = profile.full_name;
-                    });
-                    
-                    // ウェルカムメッセージにアニメーションを追加
-                    document.getElementById('welcome-user-name').classList.add('animate-pulse-once');
-                }
-            }
-            
-            // ログアウトボタンの処理
-            document.getElementById('logout-button').addEventListener('click', async () => {
-                await supabase.auth.signOut();
-                window.location.href = 'index.html';
-            });
-        });
-    </script> 
     <script type="module" src="assets/js/app.js"></script>
 </body>
 </html>
