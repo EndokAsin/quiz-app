@@ -6,84 +6,218 @@
     <title>Login - Quiz App</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="stylesheet" href="assets/css/style.css">
-    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
     <style>
-        @keyframes fadeIn {
-            from { opacity: 0; }
-            to { opacity: 1; }
+        /* Keyframes for animations */
+        @keyframes fadeInUp {
+            from {
+                opacity: 0;
+                transform: translateY(20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
         }
-        .animate-fadeIn {
-            animation: fadeIn 0.6s ease-out forwards;
+        
+        @keyframes floatLabel {
+            from {
+                transform: translateY(0) scale(1);
+                opacity: 1;
+            }
+            to {
+                transform: translateY(-24px) scale(0.85);
+                opacity: 1;
+            }
         }
-        .input-highlight {
-            background: linear-gradient(to right, #4f46e5, #7c3aed);
-            height: 2px;
-            width: 0;
-            transition: width 0.4s ease;
+        
+        @keyframes pulseBorder {
+            0% {
+                box-shadow: 0 0 0 0 rgba(99, 102, 241, 0.4);
+            }
+            70% {
+                box-shadow: 0 0 0 6px rgba(99, 102, 241, 0);
+            }
+            100% {
+                box-shadow: 0 0 0 0 rgba(99, 102, 241, 0);
+            }
         }
-        input:focus ~ .input-highlight {
-            width: 100%;
+        
+        .animate-fadeInUp {
+            animation: fadeInUp 0.8s ease-out forwards;
+        }
+        
+        .animate-floatLabel {
+            animation: floatLabel 0.3s ease-out forwards;
+        }
+        
+        .animate-pulseBorder {
+            animation: pulseBorder 1s ease-out;
+        }
+        
+        /* Floating label styles */
+        .floating-label-group {
+            position: relative;
+            margin-top: 1.5rem;
+        }
+        
+        .floating-label {
+            position: absolute;
+            top: 1rem;
+            left: 1rem;
+            color: #6b7280;
+            pointer-events: none;
+            transition: all 0.3s ease;
+            transform-origin: left center;
+        }
+        
+        input:focus ~ .floating-label,
+        input:not(:placeholder-shown) ~ .floating-label {
+            transform: translateY(-24px) scale(0.85);
+            color: #6366f1;
+        }
+        
+        /* Password toggle button */
+        .password-toggle {
+            position: absolute;
+            right: 0.75rem;
+            top: 50%;
+            transform: translateY(-50%);
+            cursor: pointer;
+            color: #9ca3af;
+            transition: color 0.2s ease;
+        }
+        
+        .password-toggle:hover {
+            color: #6366f1;
         }
     </style>
 </head>
-<body class="bg-gradient-to-br from-indigo-900 to-purple-800 font-['Poppins']">
-    <div class="flex items-center justify-center min-h-screen p-4">
-        <div class="w-full max-w-md p-10 bg-white/5 backdrop-blur-lg rounded-2xl shadow-xl border border-white/10 opacity-0 animate-fadeIn">
-            <div class="text-center mb-8">
-                <h1 class="text-4xl font-bold text-white mb-2">Yooo, welcome back!</h1>
-                <p class="text-white/80">Find time here? Sign up for free</p>
+<body class="bg-gray-100 font-['Inter']">
+    <div class="flex items-center justify-center min-h-screen">
+        <div class="w-full max-w-md p-8 space-y-6 bg-white rounded-lg shadow-md opacity-0 animate-fadeInUp">
+            <div class="flex justify-center">
+                <img src="assets/images/Logo_AICOMS_Telkom_University.png" alt="AICOMS Logo" class="h-16 mb-4 transition-transform duration-300 hover:scale-105">
             </div>
+            <h1 class="text-3xl font-bold text-center text-gray-800 transition duration-500 transform hover:scale-105">Selamat Datang!!!</h1>
+            <p class="text-center text-gray-600">Login ke Akun Anda</p>
             
             <form id="login-form" class="space-y-6">
-                <div class="relative">
+                <!-- Animated Email Input -->
+                <div class="floating-label-group">
                     <input 
-                        type="email" name="email" id="email" placeholder="Your email" required
-                        class="w-full px-4 py-3 bg-white/10 text-white placeholder-white/50 rounded-lg border-none focus:ring-2 focus:ring-indigo-400 focus:outline-none transition-all duration-300"
+                        type="email" 
+                        id="email" 
+                        name="email" 
+                        placeholder=" "
+                        required
+                        class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent transition-all duration-300"
                     >
-                    <div class="input-highlight mt-1"></div>
+                    <label for="email" class="floating-label">Email</label>
+                    <div class="absolute bottom-0 left-0 h-0.5 bg-indigo-500 w-0 transition-all duration-500"></div>
                 </div>
                 
-                <div class="relative">
+                <!-- Animated Password Input -->
+                <div class="floating-label-group relative">
                     <input 
-                        type="password" name="password" id="password" placeholder="Your password" required
-                        class="w-full px-4 py-3 bg-white/10 text-white placeholder-white/50 rounded-lg border-none focus:ring-2 focus:ring-indigo-400 focus:outline-none transition-all duration-300"
+                        type="password" 
+                        id="password" 
+                        name="password" 
+                        placeholder=" "
+                        required
+                        class="w-full px-4 py-3 pr-10 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent transition-all duration-300"
                     >
-                    <div class="input-highlight mt-1"></div>
+                    <label for="password" class="floating-label">Kata Sandi</label>
+                    <div class="absolute bottom-0 left-0 h-0.5 bg-indigo-500 w-0 transition-all duration-500"></div>
+                    <span class="password-toggle" id="togglePassword">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
+                        </svg>
+                    </span>
+                </div>
+                
+                <div class="text-right">
+                    <a href="forgot-password.html" class="text-sm text-indigo-600 hover:underline transition duration-200 transform hover:translate-x-1">Lupa Kata Sandi?</a>
                 </div>
                 
                 <button type="submit"
-                        class="w-full py-3 font-semibold text-white bg-gradient-to-r from-indigo-500 to-purple-600 rounded-lg hover:from-indigo-600 hover:to-purple-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 transition-all duration-300 shadow-lg hover:shadow-indigo-500/20">
-                    Sign in
-                </button>
-                
-                <div class="flex items-center justify-center space-x-4 my-4">
-                    <div class="h-px bg-white/20 flex-1"></div>
-                    <span class="text-white/50 text-sm">OR</span>
-                    <div class="h-px bg-white/20 flex-1"></div>
-                </div>
-                
-                <button type="button"
-                        class="w-full py-3 font-medium text-white bg-white/10 rounded-lg hover:bg-white/20 focus:outline-none transition-all duration-300 flex items-center justify-center space-x-2">
-                    <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" viewBox="0 0 24 24" fill="currentColor">
-                        <path d="M12 0c-6.627 0-12 5.373-12 12s5.373 12 12 12 12-5.373 12-12-5.373-12-12-12zm-2 16h-2v-6h2v6zm-1-6.891c-.607 0-1.1-.496-1.1-1.109 0-.612.492-1.109 1.1-1.109s1.1.497 1.1 1.109c0 .613-.493 1.109-1.1 1.109zm8 6.891h-1.998v-2.861c0-1.881-2.002-1.722-2.002 0v2.861h-2v-6h2v1.093c.872-1.616 4-1.736 4 1.548v3.359z"/>
-                    </svg>
-                    <span>Sign in using single link</span>
-                </button>
-                
-                <button type="button"
-                        class="w-full py-3 font-medium text-white bg-white/10 rounded-lg hover:bg-white/20 focus:outline-none transition-all duration-300">
-                    Single sign-on (SSO)
+                        class="w-full py-3 font-semibold text-white bg-indigo-600 rounded-lg hover:bg-indigo-700 hover:scale-[1.02] focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 transition-all duration-300 relative overflow-hidden group">
+                    <span class="relative z-10">Masuk</span>
+                    <span class="absolute inset-0 bg-indigo-700 opacity-0 group-hover:opacity-20 transition-opacity duration-300"></span>
                 </button>
             </form>
 
-            <div id="error-message" class="text-center text-red-300 text-sm mt-4"></div>
+            <div id="error-message" class="text-center text-red-500 text-sm"></div>
 
-            <p class="text-xs text-center text-white/50 mt-8">
-                Not recommended. Not permitted, and agree to your<br>
-                listing of details on our image table.
+            <p class="text-sm text-center text-gray-600">
+                Belum punya akun? <a href="register.html" class="font-medium text-indigo-600 hover:underline transition duration-200 transform hover:translate-x-1">Daftar di sini</a>
             </p>
         </div>
     </div>
+    
+    <script>
+        // Password visibility toggle
+        const togglePassword = document.querySelector('#togglePassword');
+        const password = document.querySelector('#password');
+        
+        togglePassword.addEventListener('click', function() {
+            const type = password.getAttribute('type') === 'password' ? 'text' : 'password';
+            password.setAttribute('type', type);
+            
+            // Toggle eye icon
+            this.innerHTML = type === 'password' ? 
+                '<svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" /><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" /></svg>' :
+                '<svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13.875 18.825A10.05 10.05 0 0112 19c-4.478 0-8.268-2.943-9.542-7a9.97 9.97 0 011.563-3.029m5.858.908a3 3 0 114.243 4.243M9.878 9.878l4.242 4.242M9.88 9.88l-3.29-3.29m7.532 7.532l3.29 3.29M3 3l3.59 3.59m0 0A9.953 9.953 0 0112 5c4.478 0 8.268 2.943 9.542 7a10.025 10.025 0 01-4.132 5.411m0 0L21 21" /></svg>';
+        });
+        
+        // Input focus animations
+        const inputs = document.querySelectorAll('input');
+        inputs.forEach(input => {
+            const floatingLabel = input.nextElementSibling;
+            const bottomLine = floatingLabel.nextElementSibling;
+            
+            input.addEventListener('focus', () => {
+                floatingLabel.classList.add('text-indigo-600');
+                bottomLine.style.width = '100%';
+                input.classList.add('animate-pulseBorder');
+            });
+            
+            input.addEventListener('blur', () => {
+                if (!input.value) {
+                    floatingLabel.classList.remove('text-indigo-600');
+                }
+                bottomLine.style.width = '0';
+                input.classList.remove('animate-pulseBorder');
+            });
+            
+            // Trigger float animation if there's already a value (e.g. after form error)
+            if (input.value) {
+                floatingLabel.classList.add('text-indigo-600');
+                floatingLabel.style.transform = 'translateY(-24px) scale(0.85)';
+            }
+        });
+        
+        // Form submission animation
+        document.getElementById('login-form').addEventListener('submit', function(e) {
+            e.preventDefault();
+            const button = this.querySelector('button[type="submit"]');
+            
+            // Show loading state
+            button.innerHTML = '<span class="relative z-10">Memproses...</span>';
+            button.classList.add('opacity-75', 'cursor-not-allowed');
+            
+            // Simulate API call
+            setTimeout(() => {
+                // Reset button after 2 seconds (simulated API response)
+                button.innerHTML = '<span class="relative z-10">Masuk</span>';
+                button.classList.remove('opacity-75', 'cursor-not-allowed');
+                
+                // Show error message (for demo purposes)
+                document.getElementById('error-message').textContent = 'Email atau kata sandi salah';
+            }, 2000);
+        });
+    </script>
     <script type="module" src="assets/js/app.js"></script>
 </body>
 </html>
